@@ -1,0 +1,14 @@
+---
+# - hostname:
+#     name: '{{ inventory_hostname }}'
+
+- name: file /etc/hostname
+  template: src=hostname.j2 dest=/etc/hostname mode=0644
+
+- name: change hostname
+  shell: "hostname {{ inventory_hostname }}"
+
+- name: Set up /etc/hosts
+  template: src=hosts.j2 dest=/etc/hosts mode=0644
+# - name: copy /etc/security/limits.conf
+#   template: src=limits.conf dest=/etc/security/limits.conf mode=0644

@@ -1,0 +1,15 @@
+- name: hostname,init
+  hosts: all
+  gather_facts: no
+  become: yes
+  roles:
+    - { role: hostname, tags: hostname }
+    - { role: init, tags: init }
+- name: ossec
+  hosts: all
+  gather_facts: no
+  become: yes
+  roles:
+    - ossec
+  tags:
+    - ossec

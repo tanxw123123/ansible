@@ -1,0 +1,4 @@
+- include_tasks: download_ossec.yml
+- include_tasks: install_ossec.yml
+- include_tasks: register.yml
+#- include_tasks: change_conf.yml

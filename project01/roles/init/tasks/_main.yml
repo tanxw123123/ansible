@@ -1,0 +1,67 @@
+---
+- name: init apt
+  shell: |
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+    # DEBIAN_FRONTEND=noninteractive \
+    # apt \
+    # -o Dpkg::Options::=--force-confold \
+    # -o Dpkg::Options::=--force-confdef \
+    # -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
+    pkill apt
+    pkill dpkg
+    rm -rf /var/lib/dpkg/lock
+    rm -rf /var/lib/dpkg/lock-frontend
+    rm -rf /var/cache/debconf
+    dpkg --configure -a --force-confold --force-confdef
+    apt --fix-broken install -y
+    apt update
+    apt -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef upgrade -y
+
+# - name: some ops for aws ec2 ...
+#   shell: |
+#     # install brctl
+#     apt install bridge-utils -y
+#     # for aws ec2
+#     apt purge docker.io -y
+#     ifconfig docker0 down
+#     brctl delbr docker0
+#   ignore_errors: yes
+
+- name: locales and timezone ...
+  shell: |
+    # 编码
+    apt install locales -y
+    locale-gen en_US.UTF-8
+    locale-gen zh_CN.UTF-8
+    # 时区
+    apt install tzdata chrony -y
+    cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+    echo 'Asia/Shanghai' > /etc/timezone
+    timedatectl set-timezone Asia/Shanghai
+
+- name: install necessary software  ...
+  shell: |
+    apt install -y \
+    gcc g++ make net-tools unzip fish git vim openjdk-8-jdk
+
+- shell: |
+    cat>/etc/security/limits.conf<<EOF
+    root  soft  nofile    65536
+    root  hard  nofile    65536
+    root  soft  nproc     65536
+    root  hard  nproc     65536
+    root  soft  nofile    65536
+    root  soft  memlock   unlimited
+    root  hard  memlock   unlimited
+    *  soft  nofile    65536
+    *  hard  nofile    65536
+    *  soft  nproc     65536
+    *  hard  nproc     65536
+    *  soft  nofile    65536
+    *  soft  memlock   unlimited
+    *  hard  memlock   unlimited
+    EOF
+
+- name: apt update ; upgrade ; autoremove   ...
+  shell: |
+    apt update ; apt upgrade -y ; apt autoremove -y
